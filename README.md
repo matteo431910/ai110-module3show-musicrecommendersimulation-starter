@@ -17,17 +17,71 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world platforms like Spotify and YouTube use **hybrid recommendation systems** that combine two main approaches: collaborative filtering (learning from what other users with similar taste enjoyed) and content-based filtering (analyzing song attributes to find similar music). Our Phase 1 implementation uses **content-based filtering**, which prioritizes finding songs with similar musical "vibes" to what the user already likes. This approach avoids the cold-start problem (works immediately for new songs and users) and provides explainable recommendations. Phase 2 will add collaborative filtering to discover serendipitous finds based on user patterns.
 
-Some prompts to answer:
+### Data Flow
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+The system follows a simple pipeline:
 
-You can include a simple diagram or bullet list if helpful.
+```
+INPUT: User Profile
+  ↓
+PROCESS: Score Each Song (CSV loop with 4 criteria)
+  ↓
+OUTPUT: Ranking & Top K Recommendations
+```
+
+### Song Features & User Profile
+
+**Song Features:** Each song is represented by its `title`, `artist`, `genre` (pop, rock, lofi, etc.), `mood` (happy, chill, intense, etc.), numerical audio features (`energy`, `valence`, `tempo_bpm`, `danceability`, `acousticness`), and a unique `id`. These features capture both *what* kind of song it is (genre/mood) and *how* it feels (energy/acousticness).
+
+**UserProfile:** A user profile stores their `favorite_genre`, `favorite_mood`, `target_energy` (0.0–1.0), and `likes_acoustic` (boolean). This represents their current taste preference—what kind of vibe they want to hear right now.
+
+### Algorithm Recipe: Genre-Primary Weighting 
+
+For each song, we calculate a **total score** using four weighted components:
+
+| Component | Criteria | Points |
+|-----------|----------|--------|
+| **Genre Match** | Song genre matches user's favorite genre | +2.0 |
+| **Mood Match** | Song mood matches user's favorite mood | +1.0 |
+| **Energy Similarity** | Continuous proximity to target energy | 0–1.0 |
+| **Acousticness Match** | Song acousticness aligns with user preference | +0.5 |
+
+**Energy Similarity Calculation:**
+```
+energy_score = max(0, 1.0 - abs(song_energy - target_energy) / 0.5)
+```
+- Perfect match (difference = 0): +1.0 points
+- Difference of ±0.5: +0.0 points (threshold)
+- Values between: partial credit
+
+**Total Score Range:** 0.0 to 4.5 points
+
+**Recommendation Selection:** After scoring all songs, we sort by score (descending) and return the top K recommendations (default K=5) along with explanations of which criteria matched.
+
+### Known Biases & Limitations
+
+This system prioritizes **genre as the primary match criterion** (50% of maximum score). As a result:
+
+- ⚠️ **Genre Dominance**: A "sad pop" song will always rank higher than a "happy metal" song, even if the user is in a happy mood. Genre acts as a gateway; mood is only evaluated if the genre matches first.
+- ⚠️ **Energy Threshold Effect**: Songs with energy values >0.5 away from the user's target score 0 points for energy, potentially surprising the user if a great mood/genre match has very different energy.
+- ⚠️ **Limited Discovery**: This approach rarely recommends out-of-genre songs, even if they perfectly match the requested mood/energy. It's conservative rather than serendipitous.
+- ⚠️ **Cold Catalog**: Small dataset means limited recommendations; genre/mood combinations with no matches leave users with poor options.
+
+These biases are intentional for Strategy 2 (genre-first approach). Future iterations could increase mood weight or use a hybrid strategy.
+
+### Example Output
+
+Here's what a real recommendation session looks like with the default profile (genre: "pop", mood: "happy", target energy: 0.8):
+
+<img src="screenshots/recommendations_output.png" alt="Terminal screenshot showing top 5 music recommendations with scores and reasons" width="600">
+
+**Observations:**
+- #1 (Sunrise City) is the perfect match: pop + happy + high energy (0.84) + not acoustic ✅
+- #2 (Gym Hero) matches genre and energy, but mood is "intense" instead of "happy"
+- #3 (Rooftop Lights) matches mood and energy but is indie pop, not pure pop
+- #4-5 have weaker matches with only energy proximity and acousticness
 
 ---
 
