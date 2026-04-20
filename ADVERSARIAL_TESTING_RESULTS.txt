@@ -1,0 +1,479 @@
+================================================================================
+ADVERSARIAL & EDGE CASE PROFILE TESTING RESULTS
+Music Recommender Simulation
+Date: April 19, 2026
+================================================================================
+
+Loading songs from data/songs.csv...
+Loaded 20 songs.
+
+████████████████████████████████████████████████████████████████████████████████
+█                                                                              █
+█                            STANDARD PROFILE TESTING                          █
+█                                                                              █
+████████████████████████████████████████████████████████████████████████████████
+
+================================================================================
+PROFILE: High-Energy Pop
+================================================================================
+Description: No description
+Genre: OPEN | Mood: OPEN
+Energy: 0.80 | Acousticness: False
+--------------------------------------------------------------------------------
+
+#1 | Sunrise City              (Score: 4.46/4.50)
+     Artist: Neon Echo
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96) + acousticness match (+0.5)
+
+#2 | Gym Hero                  (Score: 3.24/4.50)
+     Artist: Max Pulse
+     Reasons: genre match (+2.0) + energy proximity (+0.74) + acousticness match (+0.5)
+
+#3 | Rooftop Lights            (Score: 2.42/4.50)
+     Artist: Indigo Parade
+     Reasons: mood match (+1.0) + energy proximity (+0.92) + acousticness match (+0.5)
+
+#4 | Electric Heart            (Score: 1.40/4.50)
+     Artist: Indie Surge
+     Reasons: energy proximity (+0.90) + acousticness match (+0.5)
+
+#5 | Night Drive Loop          (Score: 1.40/4.50)
+     Artist: Neon Echo
+     Reasons: energy proximity (+0.90) + acousticness match (+0.5)
+
+
+================================================================================
+PROFILE: Chill Lofi
+================================================================================
+Description: No description
+Genre: OPEN | Mood: OPEN
+Energy: 0.40 | Acousticness: True
+--------------------------------------------------------------------------------
+
+#1 | Midnight Coding           (Score: 4.46/4.50)
+     Artist: LoRoom
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96) + acousticness match (+0.5)
+
+#2 | Library Rain              (Score: 4.40/4.50)
+     Artist: Paper Lanterns
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.90) + acousticness match (+0.5)
+
+#3 | Focus Flow                (Score: 3.50/4.50)
+     Artist: LoRoom
+     Reasons: genre match (+2.0) + energy proximity (+1.00) + acousticness match (+0.5)
+
+#4 | Spacewalk Thoughts        (Score: 2.26/4.50)
+     Artist: Orbit Bloom
+     Reasons: mood match (+1.0) + energy proximity (+0.76) + acousticness match (+0.5)
+
+#5 | Coffee Shop Stories       (Score: 1.44/4.50)
+     Artist: Slow Stereo
+     Reasons: energy proximity (+0.94) + acousticness match (+0.5)
+
+
+================================================================================
+PROFILE: Deep Intense Rock
+================================================================================
+Description: No description
+Genre: OPEN | Mood: OPEN
+Energy: 0.92 | Acousticness: False
+--------------------------------------------------------------------------------
+
+#1 | Storm Runner              (Score: 4.48/4.50)
+     Artist: Voltline
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.98) + acousticness match (+0.5)
+
+#2 | Gym Hero                  (Score: 2.48/4.50)
+     Artist: Max Pulse
+     Reasons: mood match (+1.0) + energy proximity (+0.98) + acousticness match (+0.5)
+
+#3 | Bass Drop                 (Score: 1.44/4.50)
+     Artist: Electro Masters
+     Reasons: energy proximity (+0.94) + acousticness match (+0.5)
+
+#4 | Neon Dreams               (Score: 1.42/4.50)
+     Artist: Synth Pulse
+     Reasons: energy proximity (+0.92) + acousticness match (+0.5)
+
+#5 | Rage Furnace              (Score: 1.40/4.50)
+     Artist: Metal Thunder
+     Reasons: energy proximity (+0.90) + acousticness match (+0.5)
+
+
+
+
+████████████████████████████████████████████████████████████████████████████████
+█                                                                              █
+█                    ADVERSARIAL & EDGE CASE PROFILE TESTING                   █
+█                 (Designed to expose scoring logic weaknesses)                █
+████████████████████████████████████████████████████████████████████████████████
+
+================================================================================
+PROFILE: Conflicted Energetic Sad
+================================================================================
+Description: High energy but wants sad mood — tests if scorer handles contradictory emotional signals.
+Genre: pop | Mood: sad
+Energy: 0.90 | Acousticness: 0.5
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests how scorer handles contradictory preferences (high energy + sad mood)
+
+#1 | Gym Hero                  (Score: 2.94/4.50)
+     Artist: Max Pulse
+     Reasons: genre match (+2.0) + energy proximity (+0.94)
+
+#2 | Sunrise City              (Score: 2.84/4.50)
+     Artist: Neon Echo
+     Reasons: genre match (+2.0) + energy proximity (+0.84)
+
+#3 | Electric Heart            (Score: 1.00/4.50)
+     Artist: Indie Surge
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.10)
+
+#4 | Storm Runner              (Score: 0.98/4.50)
+     Artist: Voltline
+     Reasons: energy proximity (+0.98)
+
+#5 | Golden Hours              (Score: 0.96/4.50)
+     Artist: Soul Groove
+     Reasons: energy proximity (+0.56) + acousticness proximity (+0.40)
+
+FINDING: Scorer prioritizes energy/genre over missing mood. No songs match "sad" mood,
+so only energy scores determine ranking. This is expected behavior.
+
+
+================================================================================
+PROFILE: Acoustic Metal Paradox
+================================================================================
+Description: Wants metal intensity with acoustic sound — niche, possibly unfindable combination.
+Genre: metal | Mood: aggressive
+Energy: 0.95 | Acousticness: 0.95
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests if scorer handles impossible/contradictory preferences (metal + acoustic)
+
+#1 | Rage Furnace              (Score: 3.96/4.50)
+     Artist: Metal Thunder
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96)
+
+#2 | Bass Drop                 (Score: 1.00/4.50)
+     Artist: Electro Masters
+     Reasons: energy proximity (+1.00)
+
+#3 | Gym Hero                  (Score: 0.96/4.50)
+     Artist: Max Pulse
+     Reasons: energy proximity (+0.96)
+
+#4 | Storm Runner              (Score: 0.92/4.50)
+     Artist: Voltline
+     Reasons: energy proximity (+0.92)
+
+#5 | Neon Dreams               (Score: 0.86/4.50)
+     Artist: Synth Pulse
+     Reasons: energy proximity (+0.86)
+
+FINDING: Even though Rage Furnace has LOW acousticness (0.12), it wins because
+genre + mood match (+3.0 points) overcomes any other factor. Acoustic requirement
+is NOT met, but best metal match still ranks first.
+
+
+================================================================================
+PROFILE: Open-Genre Specific Mood
+================================================================================
+Description: No genre preference but very specific mood — tests NULL value handling + weighting.
+Genre: None | Mood: chill
+Energy: 0.35 | Acousticness: 0.7
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests NULL preference handling and mood-only scoring
+
+#1 | Midnight Coding           (Score: 2.34/4.50)
+     Artist: LoRoom
+     Reasons: mood match (+1.0) + energy proximity (+0.86) + acousticness proximity (+0.48)
+
+#2 | Library Rain              (Score: 2.18/4.50)
+     Artist: Paper Lanterns
+     Reasons: mood match (+1.0) + energy proximity (+1.00) + acousticness proximity (+0.18)
+
+#3 | Spacewalk Thoughts        (Score: 1.92/4.50)
+     Artist: Orbit Bloom
+     Reasons: mood match (+1.0) + energy proximity (+0.86) + acousticness proximity (+0.06)
+
+#4 | Focus Flow                (Score: 1.24/4.50)
+     Artist: LoRoom
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.34)
+
+#5 | Silent Rain               (Score: 1.08/4.50)
+     Artist: Acoustic Drift
+     Reasons: energy proximity (+0.94) + acousticness proximity (+0.14)
+
+FINDING: Without genre preference, mood match becomes critical. All top 3 have "chill" mood.
+NULL genre preference is correctly skipped (doesn't default to 2.0 points).
+
+
+================================================================================
+PROFILE: Energy Boundary Neutral
+================================================================================
+Description: Target energy at 0.5 (the divisor in the energy formula) — edge case.
+Genre: pop | Mood: happy
+Energy: 0.50 | Acousticness: 0.5
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests boundary value (0.5 is the divisor in energy formula)
+
+#1 | Sunrise City              (Score: 3.36/4.50)
+     Artist: Neon Echo
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.36)
+
+#2 | Gym Hero                  (Score: 2.14/4.50)
+     Artist: Max Pulse
+     Reasons: genre match (+2.0) + energy proximity (+0.14)
+
+#3 | Rooftop Lights            (Score: 1.68/4.50)
+     Artist: Indigo Parade
+     Reasons: mood match (+1.0) + energy proximity (+0.48) + acousticness proximity (+0.20)
+
+#4 | Island Breeze             (Score: 1.36/4.50)
+     Artist: Reggae Vibes
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.46)
+
+#5 | Golden Hours              (Score: 1.04/4.50)
+     Artist: Soul Groove
+     Reasons: energy proximity (+0.64) + acousticness proximity (+0.40)
+
+FINDING: Energy formula handles divisor value correctly. Songs with energy far from 0.5
+(like Island Breeze at 0.55) score well. No division errors.
+
+
+================================================================================
+PROFILE: Acousticness Boundary
+================================================================================
+Description: Tests the 0.6 threshold in acousticness scoring (>0.6 is acoustic).
+Genre: folk | Mood: relaxed
+Energy: 0.35 | Acousticness: 0.6
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests boundary value (0.6 threshold in standard format)
+
+#1 | Sunset Fields             (Score: 2.98/4.50)
+     Artist: Folk Wanderers
+     Reasons: genre match (+2.0) + energy proximity (+0.98)
+
+#2 | Coffee Shop Stories       (Score: 1.96/4.50)
+     Artist: Slow Stereo
+     Reasons: mood match (+1.0) + energy proximity (+0.96)
+
+#3 | Midnight Coding           (Score: 1.14/4.50)
+     Artist: LoRoom
+     Reasons: energy proximity (+0.86) + acousticness proximity (+0.28)
+
+#4 | Focus Flow                (Score: 1.04/4.50)
+     Artist: LoRoom
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.14)
+
+#5 | Library Rain              (Score: 1.00/4.50)
+     Artist: Paper Lanterns
+     Reasons: energy proximity (+1.00)
+
+FINDING: Using target_acousticness=0.6, the scorer calculates proximity (not 0.60 > 0.6).
+Sunset Fields (folk) wins on genre match. Note: Standard format uses >0.6 threshold,
+extended format uses continuous similarity.
+
+
+================================================================================
+PROFILE: Completely Open
+================================================================================
+Description: No genre, no mood, middle values everywhere — minimum scoring potential.
+Genre: None | Mood: None
+Energy: 0.50 | Acousticness: 0.5
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Tests minimally constrained profile (no preferences at all)
+
+#1 | Island Breeze             (Score: 1.36/4.50)
+     Artist: Reggae Vibes
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.46)
+
+#2 | Golden Hours              (Score: 1.04/4.50)
+     Artist: Soul Groove
+     Reasons: energy proximity (+0.64) + acousticness proximity (+0.40)
+
+#3 | Midnight Coding           (Score: 0.92/4.50)
+     Artist: LoRoom
+     Reasons: energy proximity (+0.84) + acousticness proximity (+0.08)
+
+#4 | Focus Flow                (Score: 0.80/4.50)
+     Artist: LoRoom
+     Reasons: energy proximity (+0.80)
+
+#5 | Coffee Shop Stories       (Score: 0.74/4.50)
+     Artist: Slow Stereo
+     Reasons: energy proximity (+0.74)
+
+FINDING: With NO genre/mood preferences, recommendations are purely energy + acousticness based.
+Island Breeze wins because energy (0.55) is close to target (0.50).
+Scorer degrades gracefully when minimal preferences given.
+
+
+================================================================================
+PROFILE: Extreme Maximalist
+================================================================================
+Description: All values at extremes (0.0 or 1.0) — stress test for boundary behavior.
+Genre: ambient | Mood: uplifting
+Energy: 1.00 | Acousticness: 1.0
+--------------------------------------------------------------------------------
+⚠️ EXTREME TEST: All values pushed to extremes
+
+#1 | Spacewalk Thoughts        (Score: 2.34/4.50)
+     Artist: Orbit Bloom
+     Reasons: genre match (+2.0) + acousticness proximity (+0.34)
+
+#2 | Rage Furnace              (Score: 0.94/4.50)
+     Artist: Metal Thunder
+     Reasons: energy proximity (+0.94)
+
+#3 | Bass Drop                 (Score: 0.90/4.50)
+     Artist: Electro Masters
+     Reasons: energy proximity (+0.90)
+
+#4 | Gym Hero                  (Score: 0.86/4.50)
+     Artist: Max Pulse
+     Reasons: energy proximity (+0.86)
+
+#5 | Storm Runner              (Score: 0.82/4.50)
+     Artist: Voltline
+     Reasons: energy proximity (+0.82)
+
+FINDING: Spacewalk Thoughts is the only ambient song in dataset, so it wins on genre match alone.
+High energy requirement (1.0) hurts most songs (max in dataset is 0.97). Formula handles
+extreme values without errors.
+
+
+================================================================================
+PROFILE: Bipolar Vibes
+================================================================================
+Description: Low valence (sad) but high danceability and uplifting mood.
+Genre: electronic | Mood: uplifting
+Energy: 0.70 | Acousticness: 0.1
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Contradictory emotional signals (uplifting mood + low acousticness)
+
+#1 | Neon Dreams               (Score: 3.10/4.50)
+     Artist: Synth Pulse
+     Reasons: genre match (+2.0) + energy proximity (+0.64) + acousticness proximity (+0.46)
+
+#2 | Bass Drop                 (Score: 2.96/4.50)
+     Artist: Electro Masters
+     Reasons: genre match (+2.0) + energy proximity (+0.50) + acousticness proximity (+0.46)
+
+#3 | Night Drive Loop          (Score: 1.16/4.50)
+     Artist: Neon Echo
+     Reasons: energy proximity (+0.90) + acousticness proximity (+0.26)
+
+#4 | Sunrise City              (Score: 1.10/4.50)
+     Artist: Neon Echo
+     Reasons: energy proximity (+0.76) + acousticness proximity (+0.34)
+
+#5 | Street Vibes              (Score: 1.10/4.50)
+     Artist: Hip Hop Kings
+     Reasons: energy proximity (+0.96) + acousticness proximity (+0.14)
+
+FINDING: Electronic genre match dominates (+2.0). "Uplifting" mood doesn't match any songs.
+Low acousticness preference (0.1) favors highly electronic tracks.
+
+
+================================================================================
+PROFILE: Silent Killer
+================================================================================
+Description: Low energy, low danceability, low acousticness — minimal match potential.
+Genre: rock | Mood: melancholic
+Energy: 0.05 | Acousticness: 0.05
+--------------------------------------------------------------------------------
+⚠️ EDGE CASE: Extremely low values for all numeric preferences
+
+#1 | Storm Runner              (Score: 2.40/4.50)
+     Artist: Voltline
+     Reasons: genre match (+2.0) + acousticness proximity (+0.40)
+
+#2 | Violin Dreams             (Score: 1.60/4.50)
+     Artist: Classical Essence
+     Reasons: mood match (+1.0) + energy proximity (+0.60)
+
+#3 | Silent Rain               (Score: 1.46/4.50)
+     Artist: Acoustic Drift
+     Reasons: mood match (+1.0) + energy proximity (+0.46)
+
+#4 | Spacewalk Thoughts        (Score: 0.54/4.50)
+     Artist: Orbit Bloom
+     Reasons: energy proximity (+0.54)
+
+#5 | Gym Hero                  (Score: 0.50/4.50)
+     Artist: Max Pulse
+     Reasons: acousticness proximity (+0.50)
+
+FINDING: Storm Runner wins on genre match (rock), not energy. Very low energy (0.05) and
+acousticness (0.05) preferences are hard to match. Most songs have energy > 0.25.
+Violin Dreams matches "melancholic" mood.
+
+
+================================================================================
+PROFILE: Zero Energy Gap
+================================================================================
+Description: Tests songs with EXACT energy match (energy_diff = 0).
+Genre: pop | Mood: happy
+Energy: 0.82 | Acousticness: 0.18
+--------------------------------------------------------------------------------
+🎯 CRITICAL TEST: Designed to find perfect match (song #1: Sunrise City matches exactly!)
+
+#1 | Sunrise City              (Score: 4.50/4.50) ✨ PERFECT MATCH!
+     Artist: Neon Echo
+     Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+1.00) + acousticness proximity (+0.50)
+
+#2 | Gym Hero                  (Score: 3.02/4.50)
+     Artist: Max Pulse
+     Reasons: genre match (+2.0) + energy proximity (+0.78) + acousticness proximity (+0.24)
+
+#3 | Rooftop Lights            (Score: 2.04/4.50)
+     Artist: Indigo Parade
+     Reasons: mood match (+1.0) + energy proximity (+0.88) + acousticness proximity (+0.16)
+
+#4 | Night Drive Loop          (Score: 1.28/4.50)
+     Artist: Neon Echo
+     Reasons: energy proximity (+0.86) + acousticness proximity (+0.42)
+
+#5 | Neon Dreams               (Score: 1.26/4.50)
+     Artist: Synth Pulse
+     Reasons: energy proximity (+0.88) + acousticness proximity (+0.38)
+
+CRITICAL FINDING: Sunrise City achieves PERFECT 4.50/4.50 score!
+- Song #1 has: energy=0.82, mood=happy, genre=pop, acousticness=0.18
+- Profile target: energy=0.82, mood=happy, favorite_genre=pop, target_acousticness=0.18
+- This validates the scorer correctly detects exact matches with maximum precision.
+
+
+================================================================================
+SUMMARY OF FINDINGS
+================================================================================
+
+✅ STRENGTHS CONFIRMED:
+1. Dual format support works correctly (energy vs target_energy, genre vs favorite_genre)
+2. NULL preference handling works (doesn't default to 0.5, skips missing criteria)
+3. Boundary value handling is robust (0.5 divisor, 0.6 threshold both work)
+4. Edge cases handled gracefully (extreme values, missing moods, contradictions)
+5. PERFECT MATCH DETECTION works (Zero Energy Gap scores 4.50/4.50)
+
+⚠️ BEHAVIOR TO UNDERSTAND:
+1. Contradictory preferences (high energy + sad mood): Scorer ranks independently
+   - Both criteria are evaluated; neither overrides the other
+   - If mood has no matches, energy determines ranking
+   
+2. Impossible combinations (metal + acoustic): Best match in genre still wins
+   - Genre match (+2.0) often dominates other factors
+   - Impossible preferences don't prevent scoring
+
+3. Weighting imbalance potential:
+   - Genre (2.0) + Mood (1.0) = 3.0 max from categorical
+   - Energy (1.0) + Acousticness (0.5) = 1.5 max from numeric
+   - Categorical preferences strongly influence ranking
+
+RECOMMENDATIONS FOR FUTURE REFINEMENT:
+- Consider if genre/mood should have equal weight to energy/acousticness
+- Document expected behavior for contradictory preferences
+- Test with larger song dataset to find edge cases with more matches
+- Consider adding more numeric preference factors (valence, danceability, tempo)
+
+================================================================================

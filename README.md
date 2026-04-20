@@ -120,6 +120,57 @@ You can add more tests in `tests/test_recommender.py`.
 
 ---
 
+## Adversarial & Edge Case Testing
+
+To test the robustness of the recommender's scoring logic, we created **10 adversarial user profiles** designed to expose edge cases, boundary conditions, and potential scoring vulnerabilities.
+
+### 📋 Testing Report
+
+**View the complete testing results:**
+
+[**OPEN ADVERSARIAL TESTING REPORT** →](ADVERSARIAL_TESTING_RESULTS.html)
+
+This interactive HTML report includes:
+- ✅ **Standard Profiles**: High-Energy Pop, Chill Lofi, Deep Intense Rock
+- ⚠️ **Adversarial Profiles**: Conflicted preferences, impossible combinations, NULL handling, boundary cases, extreme values
+- 📊 **Key Findings**: Strengths confirmed, behaviors to note, refinement recommendations
+
+**Key Discoveries:**
+- ✅ System correctly handles dual profile formats and NULL preferences
+- ✅ Perfect match detection works (achieves 4.50/4.50 score)
+- ⚠️ Genre/Mood scoring dominates (3.0 max) vs Energy/Acousticness (1.5 max)
+- ⚠️ Contradictory preferences scored independently (no conflict detection)
+
+### Testing Screenshots
+
+Here are the adversarial profile test results captured from the recommender:
+
+**Part 1: Standard Profiles & Initial Adversarial Tests**
+
+<img src="screenshots/AdversarialProfileTesting1.PNG" alt="Adversarial Profile Testing - Part 1" width="800">
+
+**Part 2: Continuing Adversarial Profile Results**
+
+<img src="screenshots/AdversarialProfileTesting2.PNG" alt="Adversarial Profile Testing - Part 2" width="800">
+
+**Part 3: More Edge Case Results**
+
+<img src="screenshots/AdversarialProfileTesting3.PNG" alt="Adversarial Profile Testing - Part 3" width="800">
+
+**Part 4: Boundary & Extreme Value Cases**
+
+<img src="screenshots/AdversarialProfileTesting4.PNG" alt="Adversarial Profile Testing - Part 4" width="800">
+
+**Part 5: Additional Edge Cases**
+
+<img src="screenshots/AdversarialProfileTesting5.PNG" alt="Adversarial Profile Testing - Part 5" width="800">
+
+**Part 6: Summary & Final Results**
+
+<img src="screenshots/AdversarialProfileTesting6.PNG" alt="Adversarial Profile Testing - Part 6" width="800">
+
+---
+
 ## Experiments You Tried
 
 Use this section to document the experiments you ran. For example:
@@ -127,6 +178,8 @@ Use this section to document the experiments you ran. For example:
 - What happened when you changed the weight on genre from 2.0 to 0.5
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
+
+**Adversarial Testing:** See the report linked above for edge case testing results.
 
 ---
 

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adversarial & Edge Case Profile Testing Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            background: #1e1e1e;
+            color: #4ec9b0;
+            padding: 20px;
+            border-bottom: 1px solid #3e3e42;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        
+        header p {
+            color: #858585;
+            font-size: 0.95em;
+        }
+        
+        .separator {
+            color: #858585;
+            text-align: center;
+            padding: 10px 0;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .profile-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #1e1e1e;
+            border-left: 3px solid #4ec9b0;
+            border-radius: 3px;
+        }
+        
+        .profile-section.standard {
+            border-left-color: #4ec9b0;
+        }
+        
+        .profile-section.adversarial {
+            border-left-color: #f48771;
+        }
+        
+        .profile-title {
+            color: #ce9178;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .profile-description {
+            color: #858585;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+        
+        .profile-prefs {
+            color: #9cdcfe;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+            padding-left: 10px;
+        }
+        
+        .profile-prefs span {
+            margin-right: 20px;
+        }
+        
+        .recommendation {
+            background: #252526;
+            padding: 12px;
+            margin: 10px 0;
+            border-left: 2px solid #007acc;
+            color: #d4d4d4;
+        }
+        
+        .recommendation-rank {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+        
+        .recommendation-title {
+            color: #ce9178;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        
+        .recommendation-artist {
+            color: #858585;
+            margin-top: 3px;
+        }
+        
+        .recommendation-score {
+            color: #6a9955;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        
+        .recommendation-reasons {
+            color: #9cdcfe;
+            font-size: 0.9em;
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        
+        .finding {
+            background: #1e1e1e;
+            border-left: 3px solid #f48771;
+            padding: 12px;
+            margin-top: 12px;
+            color: #ce9178;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .finding-label {
+            color: #f48771;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .section-header {
+            color: #4ec9b0;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin: 20px 0 15px 0;
+            letter-spacing: 1px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        .summary-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #3e3e42;
+        }
+        
+        .summary-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1e1e1e;
+            border-left: 3px solid;
+            border-radius: 3px;
+        }
+        
+        .summary-box.strengths {
+            border-left-color: #6a9955;
+        }
+        
+        .summary-box.strengths .title {
+            color: #6a9955;
+        }
+        
+        .summary-box.behaviors {
+            border-left-color: #f48771;
+        }
+        
+        .summary-box.behaviors .title {
+            color: #f48771;
+        }
+        
+        .summary-box.recommendations {
+            border-left-color: #9cdcfe;
+        }
+        
+        .summary-box.recommendations .title {
+            color: #9cdcfe;
+        }
+        
+        .summary-box .title {
+            font-weight: bold;
+            font-size: 1.05em;
+            margin-bottom: 10px;
+        }
+        
+        .summary-box ul {
+            list-style: none;
+            padding-left: 10px;
+        }
+        
+        .summary-box li {
+            color: #858585;
+            margin-bottom: 6px;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .summary-box li:before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: #858585;
+        }
+        
+        footer {
+            background: #1e1e1e;
+            padding: 15px;
+            text-align: center;
+            color: #858585;
+            font-size: 0.85em;
+            border-top: 1px solid #3e3e42;
+        }
+        
+        .perfect-match {
+            border-left-color: #6a9955 !important;
+            background: #234120 !important;
+        }
+        
+        .perfect-match .recommendation-rank {
+            color: #6a9955;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: #000;
+            }
+            .container {
+                box-shadow: none;
+                border: 1px solid #999;
+            }
+            .profile-section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 ADVERSARIAL PROFILE TESTING</h1>
+            <p>Music Recommender Simulation — Edge Case Analysis</p>
+            <p style="margin-top: 8px; font-size: 0.9em;">April 19, 2026</p>
+        </header>
+        
+        <div class="separator">═══════════════════════════════════════════════════════════════════════════</div>
+        
+        <div class="content">
+            <!-- STANDARD PROFILES -->
+            <div class="section-header">📊 STANDARD PROFILES</div>
+            
+            <div class="profile-section standard">
+                <div class="profile-title">#1 │ High-Energy Pop</div>
+                <div class="profile-prefs">
+                    <span>Genre: pop</span>
+                    <span>Mood: happy</span>
+                    <span>Energy: 0.80</span>
+                </div>
+                <div class="recommendation perfect-match">
+                    <div class="recommendation-rank">#1 │ Sunrise City</div>
+                    <div class="recommendation-artist">Artist: Neon Echo</div>
+                    <div class="recommendation-score">Score: 4.46 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96) + acousticness match (+0.5)</div>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-rank">#2 │ Gym Hero</div>
+                    <div class="recommendation-artist">Artist: Max Pulse</div>
+                    <div class="recommendation-score">Score: 3.24 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + energy proximity (+0.74) + acousticness match (+0.5)</div>
+                </div>
+            </div>
+            
+            <div class="profile-section standard">
+                <div class="profile-title">#2 │ Chill Lofi</div>
+                <div class="profile-prefs">
+                    <span>Genre: lofi</span>
+                    <span>Mood: chill</span>
+                    <span>Energy: 0.40</span>
+                </div>
+                <div class="recommendation perfect-match">
+                    <div class="recommendation-rank">#1 │ Midnight Coding</div>
+                    <div class="recommendation-artist">Artist: LoRoom</div>
+                    <div class="recommendation-score">Score: 4.46 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96) + acousticness match (+0.5)</div>
+                </div>
+                <div class="recommendation perfect-match">
+                    <div class="recommendation-rank">#2 │ Library Rain</div>
+                    <div class="recommendation-artist">Artist: Paper Lanterns</div>
+                    <div class="recommendation-score">Score: 4.40 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.90) + acousticness match (+0.5)</div>
+                </div>
+            </div>
+            
+            <!-- ADVERSARIAL PROFILES -->
+            <div class="section-header">⚠️ ADVERSARIAL & EDGE CASE PROFILES</div>
+            
+            <div class="profile-section adversarial">
+                <div class="profile-title">#1 │ Conflicted Energetic Sad</div>
+                <div class="profile-description">⚠️ High energy but wants sad mood — tests contradictory emotional signals</div>
+                <div class="profile-prefs">
+                    <span>Genre: pop</span>
+                    <span>Mood: sad</span>
+                    <span>Energy: 0.90</span>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-rank">#1 │ Gym Hero</div>
+                    <div class="recommendation-artist">Artist: Max Pulse</div>
+                    <div class="recommendation-score">Score: 2.94 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + energy proximity (+0.94)</div>
+                </div>
+                <div class="finding">
+                    <span class="finding-label">FINDING:</span> Scorer prioritizes energy/genre over missing mood. No songs match "sad" mood in dataset.
+                </div>
+            </div>
+            
+            <div class="profile-section adversarial">
+                <div class="profile-title">#2 │ Acoustic Metal Paradox</div>
+                <div class="profile-description">⚠️ Wants metal intensity with acoustic sound — impossible combination</div>
+                <div class="profile-prefs">
+                    <span>Genre: metal</span>
+                    <span>Mood: aggressive</span>
+                    <span>Energy: 0.95</span>
+                    <span>Acousticness: 0.95</span>
+                </div>
+                <div class="recommendation perfect-match">
+                    <div class="recommendation-rank">#1 │ Rage Furnace</div>
+                    <div class="recommendation-artist">Artist: Metal Thunder</div>
+                    <div class="recommendation-score">Score: 3.96 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+0.96)</div>
+                </div>
+                <div class="finding">
+                    <span class="finding-label">FINDING:</span> Genre + mood match (+3.0 points) dominates. Best metal match wins despite impossible acousticness requirement.
+                </div>
+            </div>
+            
+            <div class="profile-section adversarial">
+                <div class="profile-title">#3 │ Open-Genre Specific Mood</div>
+                <div class="profile-description">⚠️ No genre preference but specific mood — tests NULL handling</div>
+                <div class="profile-prefs">
+                    <span>Genre: NONE</span>
+                    <span>Mood: chill</span>
+                    <span>Energy: 0.35</span>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-rank">#1 │ Midnight Coding</div>
+                    <div class="recommendation-artist">Artist: LoRoom</div>
+                    <div class="recommendation-score">Score: 2.34 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: mood match (+1.0) + energy proximity (+0.86) + acousticness proximity (+0.48)</div>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-rank">#2 │ Library Rain</div>
+                    <div class="recommendation-artist">Artist: Paper Lanterns</div>
+                    <div class="recommendation-score">Score: 2.18 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: mood match (+1.0) + energy proximity (+1.00) + acousticness proximity (+0.18)</div>
+                </div>
+                <div class="finding">
+                    <span class="finding-label">FINDING:</span> Without genre preference, mood match becomes critical. NULL handling works correctly.
+                </div>
+            </div>
+            
+            <div class="profile-section adversarial perfect-match">
+                <div class="profile-title">#4 │ Zero Energy Gap 🎯</div>
+                <div class="profile-description">✨ Tests songs with EXACT energy match (energy_diff = 0)</div>
+                <div class="profile-prefs">
+                    <span>Genre: pop</span>
+                    <span>Mood: happy</span>
+                    <span>Energy: 0.82</span>
+                    <span>Acousticness: 0.18</span>
+                </div>
+                <div class="recommendation perfect-match">
+                    <div class="recommendation-rank">#1 │ Sunrise City ⭐ PERFECT MATCH</div>
+                    <div class="recommendation-artist">Artist: Neon Echo</div>
+                    <div class="recommendation-score">Score: 4.50 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: genre match (+2.0) + mood match (+1.0) + energy proximity (+1.00) + acousticness proximity (+0.50)</div>
+                </div>
+                <div class="finding">
+                    <span class="finding-label">CRITICAL:</span> Sunrise City achieves PERFECT 4.50/4.50 score! All attributes match exactly. Validates perfect match detection.
+                </div>
+            </div>
+            
+            <div class="profile-section adversarial">
+                <div class="profile-title">#5 │ Completely Open</div>
+                <div class="profile-description">⚠️ No genre, no mood, all middle values — minimal constraints</div>
+                <div class="profile-prefs">
+                    <span>Genre: NONE</span>
+                    <span>Mood: NONE</span>
+                    <span>Energy: 0.50</span>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-rank">#1 │ Island Breeze</div>
+                    <div class="recommendation-artist">Artist: Reggae Vibes</div>
+                    <div class="recommendation-score">Score: 1.36 / 4.50</div>
+                    <div class="recommendation-reasons">Reasons: energy proximity (+0.90) + acousticness proximity (+0.46)</div>
+                </div>
+                <div class="finding">
+                    <span class="finding-label">FINDING:</span> With NO preferences, recommendations are purely energy-based. Scorer degrades gracefully.
+                </div>
+            </div>
+            
+            <!-- SUMMARY SECTION -->
+            <div class="summary-section">
+                <div class="section-header">✨ SUMMARY OF FINDINGS</div>
+                
+                <div class="summary-box strengths">
+                    <div class="title">✅ STRENGTHS CONFIRMED</div>
+                    <ul>
+                        <li>Dual format support (energy vs target_energy, genre vs favorite_genre)</li>
+                        <li>NULL preference handling works perfectly (skips missing criteria)</li>
+                        <li>Boundary value handling is robust (0.5 divisor, 0.6 threshold)</li>
+                        <li>Edge cases handled gracefully (extreme values, missing moods)</li>
+                        <li><strong>PERFECT MATCH DETECTION</strong> achieved 4.50/4.50 score</li>
+                    </ul>
+                </div>
+                
+                <div class="summary-box behaviors">
+                    <div class="title">⚠️ BEHAVIORS TO NOTE</div>
+                    <ul>
+                        <li>Contradictory preferences scored independently (no conflict detection)</li>
+                        <li>Impossible genre-acousticness combos don't prevent scoring</li>
+                        <li>Genre/Mood weighting: 3.0 max points (categorical dominance)</li>
+                        <li>Energy/Acousticness weighting: 1.5 max points (numeric)</li>
+                        <li>Missing matches don't degrade gracefully — low scores across board</li>
+                    </ul>
+                </div>
+                
+                <div class="summary-box recommendations">
+                    <div class="title">🎯 RECOMMENDATIONS FOR REFINEMENT</div>
+                    <ul>
+                        <li>Consider balancing categorical vs. numeric weights</li>
+                        <li>Document expected behavior for contradictory preferences</li>
+                        <li>Add conflict detection for impossible combinations</li>
+                        <li>Expand song dataset to test more edge cases</li>
+                        <li>Consider adding valence/danceability scoring factors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="separator">═══════════════════════════════════════════════════════════════════════════</div>
+        
+        <footer>
+            Generated: April 19, 2026 | Music Recommender Simulation — Adversarial Testing Report
+        </footer>
+    </div>
+</body>
+</html>
