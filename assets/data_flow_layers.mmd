@@ -1,0 +1,42 @@
+graph LR
+    subgraph Input["📥 INPUT LAYER"]
+        U["User Profile<br/>favorite_genre<br/>favorite_mood<br/>target_energy<br/>likes_acoustic"]
+        S["Song Data<br/>title, artist<br/>genre, mood, energy<br/>acousticness<br/>popularity, decade<br/>mood_tags, instr.<br/>lyrical_depth"]
+        R["Ranking Strategy<br/>GenreFirst<br/>MoodFirst<br/>EnergyFocused<br/>Balanced<br/>PopularityAware<br/>NicheSeeker"]
+    end
+    
+    subgraph Process["⚙️ PROCESSING LAYER"]
+        SC["Scoring & Ranking<br/>score_song()<br/>sort by score"]
+        RS["Reliability Scoring<br/>- Normalize score<br/>- Calc concentration<br/>- Coverage bonus<br/>- Check biases<br/>- Missing attrs"]
+        CR["Self-Critique<br/>- Diversity check<br/>- Score clustering<br/>- Reliability bottleneck<br/>- Strategy alignment<br/>- Missing criteria"]
+    end
+    
+    subgraph Output["📤 OUTPUT LAYER"]
+        REC["Recommendation Objects<br/>song dict<br/>+ base_score<br/>+ explanation<br/>+ reliability score<br/>+ reliability_reasons<br/>+ critique_flags"]
+        CRIT["Critique Report<br/>critique_flags[]<br/>bias_warnings[]<br/>diversity_score<br/>overall_critique"]
+    end
+    
+    U --> SC
+    S --> SC
+    R --> SC
+    
+    SC -->|Top K recs<br/>song, score, reasons| RS
+    R --> RS
+    U --> RS
+    S --> RS
+    
+    RS -->|Reliability<br/>0.0-1.0 per song| REC
+    
+    SC -->|Full rec list| CR
+    REC -->|With reliability data| CR
+    R --> CR
+    U --> CR
+    
+    CR -->|System-level<br/>patterns| CRIT
+    
+    REC --> Output
+    CRIT --> Output
+    
+    style Input fill:#e3f2fd
+    style Process fill:#fff3e0
+    style Output fill:#f3e5f5

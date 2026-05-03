@@ -108,8 +108,14 @@ No need for numeric metrics unless you created some.
 
 ## 9. Personal Reflection  
 
-Building GrooveMatch taught me that recommender systems are never neutral—every design choice (weights, cutoffs, features) is a hidden opinion. I expected the system to be broken if the weights were off, but it actually worked consistently. What surprised me was that it worked *too consistently*—it would confidently recommend the wrong thing if the weights favored energy over genre.
+A few sentences about your experience.  
 
-Testing adversarial profiles made me realize that small numbers look like problems in fake data but feel like limitations in real systems. A dataset of 20 songs is obviously small, but I bet real Spotify has similar invisible walls for users with unusual tastes—superspecific genre + mood combos that nothing satisfies.
+Prompts:  
 
-Now when I use music apps, I notice things like: Do they let me tweak what "matters" to recommendations? Can they suggest things outside my usual zone? Or do they trap me in a narrow slice? GrooveMatch trapped me, and I don't think my recommender system is that different from real ones—just more honest about it.  
+- What you learned about recommender systems 
+What I learned about recommender systems is that these are very complex systems that take time to develop. I think for the most part you're able to identify music that can clearly
+fit with what the user wants. However, it's not perfect about understanding subtle contradictions found in music. This includes pop music that sounds happy but has sad undertones. You have to be able to identify all of these subtle details in order to build the best recommender system possible.  
+- Something unexpected or interesting you discovered  
+I think something interesting was the thought of how the weights of the scoring logic can determine the music recommendations. When doubling the score for energy and half for genre, the recommendations were completely different. Being able to perfect the scoring logic should be able to lead to the best results.
+- How this changed the way you think about music recommendation apps  
+There's a lot more that goes into music recommendation apps then I originally thought of. It's important to really understand and plan how the user will interact with the app and what they will need from it in order to create the best recommendation system possible. 

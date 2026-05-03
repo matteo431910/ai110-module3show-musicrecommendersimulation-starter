@@ -1,0 +1,34 @@
+graph TD
+    A["Song + Score + User Prefs<br/>+ Strategy"] -->|Input| B["ReliabilityScorer"]
+    
+    B -->|Step 1| C["Normalize Score<br/>base_score / max_possible<br/>Range: 0.0 - 1.0"]
+    B -->|Step 2| D["Parse Reasons<br/>Extract points per criterion<br/>genre: 2.0, mood: 0.8, etc."]
+    B -->|Step 3| E["Calculate Concentration<br/>Herfindahl Index<br/>0.33 balanced to 1.0 dominant"]
+    
+    C -->|normalized_score| F["Combine Metrics<br/>reliability = normalized +<br/>coverage_bonus -<br/>concentration_penalty -<br/>bias_penalty -<br/>data_penalty"]
+    E -->|concentration| F
+    
+    B -->|Step 4| G["Check Known Biases<br/>- Energy cutoff risk<br/>- Genre dominance<br/>- Rare genre limited opts<br/>- Mood-energy mismatch<br/>- Acoustic unknown"]
+    
+    G -->|bias_flags| F
+    
+    B -->|Step 5| H["Check Missing Attributes<br/>title, artist, genre, mood<br/>energy, popularity, decade<br/>mood_tags, instr, lyrical"]
+    
+    H -->|missing_attrs| F
+    
+    D -->|coverage| F
+    
+    F -->|Clamp 0.0-1.0| I["Reliability Score<br/>0.0-1.0"]
+    
+    I -->|High 0.8+| J["🟢 HIGH<br/>Trust this rec"]
+    I -->|Moderate 0.6-0.8| K["🟡 MODERATE<br/>Check manually"]
+    I -->|Low 0.4-0.6| L["🟠 LOW<br/>Question carefully"]
+    I -->|Very Low <0.4| M["🔴 VERY LOW<br/>Skip unless exploring"]
+    
+    style B fill:#90ee90
+    style F fill:#ffc0cb
+    style I fill:#ffb6c6
+    style J fill:#90ee90
+    style K fill:#ffeb99
+    style L fill:#ffcc99
+    style M fill:#ff9999

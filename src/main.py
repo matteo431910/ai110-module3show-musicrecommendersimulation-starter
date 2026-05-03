@@ -9,7 +9,10 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
-from recommender import load_songs, recommend_songs, get_strategy, STRATEGIES
+from recommender import (
+    load_songs, recommend_songs, recommend_songs_with_reliability, 
+    get_strategy, STRATEGIES, Recommendation
+)
 from adversarial_profiles import ADVERSARIAL_PROFILES
 
 # Try to import tabulate for nice tables, fall back to ASCII if not available
@@ -198,7 +201,7 @@ def display_diversity_summary(recommendations, title="Diversity Analysis"):
     print("-" * 50)
     artist_data = sorted(artist_counts.items(), key=lambda x: x[1], reverse=True)
     for artist, count in artist_data:
-        bar = "█" * count
+        bar = "=" * count
         print(f"  {artist:<25} {bar} ({count})")
     
     # Genre distribution
@@ -206,7 +209,7 @@ def display_diversity_summary(recommendations, title="Diversity Analysis"):
     print("-" * 50)
     genre_data = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)
     for genre, count in genre_data:
-        bar = "█" * count
+        bar = "=" * count
         print(f"  {genre:<25} {bar} ({count})")
     
     print()
@@ -635,6 +638,166 @@ BENEFITS:
     print("="*80)
 
 
+# ============================================================================
+# RELIABILITY SCORING DISPLAY FUNCTIONS
+# ============================================================================
+
+def display_recommendations_with_reliability(recommendations, title="Recommendations with Reliability"):
+    """
+    Display recommendations enhanced with reliability scores and confidence labels.
+    
+    Args:
+        recommendations: List of Recommendation objects
+        title: Table title
+    """
+    if not recommendations:
+        print("No recommendations found.")
+        return
+    
+    print("\n" + "="*130)
+    print(title.center(130))
+    print("="*130 + "\n")
+    
+    table_data = []
+    for rank, rec in enumerate(recommendations, 1):
+        # Handle both Recommendation objects and tuples (for backward compatibility)
+        if hasattr(rec, 'song'):
+            song = rec.song
+            score = rec.score
+            explanation = rec.explanation
+            reliability = rec.confidence_label
+        else:
+            song, score, explanation = rec
+            reliability = "N/A"
+        
+        row = [
+            f"#{rank}",
+            song['title'][:25],
+            song['artist'][:18],
+            song['genre'][:12],
+            f"{score:.2f}",
+            reliability,
+            format_reasons_short(explanation, 45)
+        ]
+        table_data.append(row)
+    
+    headers = ["Rank", "Song", "Artist", "Genre", "Score", "Reliability", "Explanation"]
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+    print()
+
+
+def display_system_critique(critique_dict, title="SYSTEM CRITIQUE"):
+    """
+    Display system-level critique analysis.
+    
+    Args:
+        critique_dict: Critique report dictionary from SelfCritique
+        title: Section title
+    """
+    if not critique_dict:
+        return
+    
+    print("\n" + "="*130)
+    print(title.center(130))
+    print("="*130 + "\n")
+    
+    # Diversity score
+    diversity_score = critique_dict.get('diversity_score', 0.0)
+    print(f"[OK] Diversity Score: {int(diversity_score*100)}% (higher is better)")
+    
+    if critique_dict.get('diversity_warning'):
+        print(f"  {critique_dict['diversity_warning']}")
+    
+    # Critique flags
+    critique_flags = critique_dict.get('critique_flags', [])
+    if critique_flags:
+        print(f"\n[!] Issues Detected ({len(critique_flags)}):")
+        for i, flag in enumerate(critique_flags, 1):
+            print(f"  {i}. {flag}")
+    else:
+        print("\n[!] All checks passed!")
+    
+    # Score cliff
+    if critique_dict.get('score_cliff_warning'):
+        print(f"\n  {critique_dict['score_cliff_warning']}")
+    
+    # Reliability bottleneck
+    if critique_dict.get('reliability_bottleneck_warning'):
+        print(f"\n  {critique_dict['reliability_bottleneck_warning']}")
+    
+    # Bias warnings
+    bias_warnings = critique_dict.get('bias_warnings', [])
+    if bias_warnings:
+        print(f"\n[BIAS] Bias Warnings ({len(bias_warnings)}):")
+        for warning in bias_warnings:
+            print(f"  - {warning}")
+    
+    # Strategy alignment
+    print(f"\n[+] Strategy Alignment: {critique_dict.get('strategy_alignment', 'N/A')}")
+    
+    # Missing criteria
+    missing = critique_dict.get('missing_criteria', [])
+    if missing:
+        print(f"\n[!] Unmatched Criteria: {', '.join(missing)}")
+    
+    # Overall critique
+    print("\n" + critique_dict.get('overall_critique', ''))
+    print()
+
+
+def test_reliability_scoring(songs):
+    """
+    Demonstrate reliability scoring and self-critique system.
+    """
+    print("\n" + "="*130)
+    print("RELIABILITY SCORING & SELF-CRITIQUE TESTING".center(130))
+    print("="*130)
+    
+    # Test profile: happy pop listener
+    test_profile = {
+        'favorite_genre': 'pop',
+        'favorite_mood': 'happy',
+        'target_energy': 0.8,
+        'likes_acoustic': False
+    }
+    
+    print(f"\nUser Profile: {test_profile}\n")
+    
+    # Get recommendations WITH reliability scoring
+    recommendations, critique = recommend_songs_with_reliability(
+        test_profile,
+        songs,
+        k=5,
+        strategy=get_strategy("balanced"),
+        enable_reliability=True
+    )
+    
+    # Display recommendations with reliability
+    display_recommendations_with_reliability(recommendations, 
+                                             title="TOP 5 RECOMMENDATIONS WITH RELIABILITY SCORING")
+    
+    # Display system-level critique
+    if critique:
+        display_system_critique(critique)
+    
+    # Show detailed breakdown for each recommendation
+    print("\n" + "="*130)
+    print("DETAILED RELIABILITY BREAKDOWN".center(130))
+    print("="*130 + "\n")
+    
+    for rank, rec in enumerate(recommendations, 1):
+        print(f"#{rank}. {rec.song['title']} by {rec.song['artist']}")
+        print(f"   Score: {rec.score:.2f} | Reliability: {rec.confidence_label} ({rec.reliability:.2f})")
+        print(f"   Explanation: {rec.explanation}")
+        
+        if rec.reliability_reasons:
+            print(f"   Reliability Analysis:")
+            for reason in rec.reliability_reasons:
+                print(f"     - {reason}")
+        
+        print()
+
+
 def main() -> None:
     songs = load_songs("data/songs.csv")
     
@@ -658,6 +821,9 @@ def main() -> None:
     
     # Option 5: NEW - Diversity Penalty demonstration
     test_diversity_penalty(songs)
+    
+    # Option 6: NEW - Reliability Scoring and Self-Critique
+    test_reliability_scoring(songs)
 
 
 if __name__ == "__main__":

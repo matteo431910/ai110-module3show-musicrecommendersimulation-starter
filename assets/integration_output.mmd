@@ -1,0 +1,13 @@
+graph TD
+    A["Traditional Output:<br/>Rank | Title | Artist<br/>Score | Explanation"] -->|Add| B["reliability_score<br/>🟢🟡🟠🔴"]
+    
+    A -->|Add| C["critique_flags<br/>e.g., genre_bottleneck<br/>rare_genre_limited_opts<br/>mood_energy_mismatch"]
+    
+    B -->|Display| D["RECOMMENDATIONS TABLE<br/>#1 Sunrise City | pop | 4.50 | 🟢 0.78<br/>   genre + mood + energy"]
+    
+    C -->|Display| D
+    
+    E["System Report:<br/>Diversity: 80%<br/>Bias Warnings:<br/>- Genre dominance 60%<br/>- Rare genres low confidence<br/>Strategy: Mood-First"] -->|Summary| F["SYSTEM CRITIQUE<br/>Actionable insights"]
+    
+    style D fill:#fffacd
+    style F fill:#fffacd

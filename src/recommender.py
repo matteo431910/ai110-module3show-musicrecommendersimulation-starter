@@ -1,7 +1,16 @@
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 import csv
+
+# Import reliability and critique modules
+try:
+    from reliability_scorer import ReliabilityScorer
+    from self_critique import SelfCritique
+except ImportError:
+    # Handle case where modules not found (for legacy compatibility)
+    ReliabilityScorer = None
+    SelfCritique = None
 
 @dataclass
 class Song:
@@ -42,6 +51,40 @@ class UserProfile:
     preferred_mood_tags: Optional[List[str]] = None
     preferred_instrumentation: Optional[List[str]] = None
     popularity_preference: Optional[float] = None
+
+
+@dataclass
+class Recommendation:
+    """
+    Enhanced recommendation with reliability and critique information.
+    
+    Attributes:
+        song: Song dictionary
+        score: Score from ranking strategy
+        explanation: Human-readable explanation of why this matches
+        reliability: Confidence score (0.0-1.0)
+        reliability_reasons: List of reasons for reliability score
+        critique_flags: Per-recommendation flags or concerns
+        confidence_label: Emoji-based confidence indicator (🟢🟡🟠🔴)
+    """
+    song: Dict
+    score: float
+    explanation: str
+    reliability: float = 0.0
+    reliability_reasons: List[str] = field(default_factory=list)
+    critique_flags: List[str] = field(default_factory=list)
+    confidence_label: str = "N/A"
+    
+    def as_dict(self) -> Dict:
+        """Convert to dictionary for display/logging."""
+        return {
+            'title': self.song.get('title', 'Unknown'),
+            'artist': self.song.get('artist', 'Unknown'),
+            'score': round(self.score, 2),
+            'reliability': f"{self.confidence_label} ({round(self.reliability, 2)})",
+            'explanation': self.explanation,
+            'flags': ', '.join(self.critique_flags) if self.critique_flags else 'none'
+        }
 
 
 # ============================================================================
@@ -728,3 +771,108 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5,
             remaining_songs.remove(best_song)
     
     return recommendations
+
+
+def recommend_songs_with_reliability(
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    strategy: RankingStrategy = None,
+    diversity_penalty: Dict = None,
+    enable_reliability: bool = True
+) -> Tuple[List[Union[Recommendation, Tuple]], Optional[Dict]]:
+    """
+    Enhanced recommendation function with reliability scoring and self-critique.
+    
+    This is a wrapper around the existing recommend_songs() that adds:
+    1. Reliability scores for each recommendation
+    2. System-level critique analysis
+    
+    Args:
+        user_prefs: User preferences dictionary
+        songs: List of song dictionaries
+        k: Number of top recommendations
+        strategy: RankingStrategy instance
+        diversity_penalty: Diversity penalty configuration
+        enable_reliability: If True, compute reliability scores and critique
+    
+    Returns:
+        If enable_reliability=True:
+            (List[Recommendation], critique_report: Dict)
+        Else:
+            (List[Tuple[Dict, float, str]], None)
+    """
+    
+    # Get base recommendations (existing pipeline)
+    base_recommendations = recommend_songs(user_prefs, songs, k, strategy, diversity_penalty)
+    
+    if not enable_reliability:
+        return base_recommendations, None
+    
+    # If modules not available, return base recommendations
+    if ReliabilityScorer is None or SelfCritique is None:
+        return base_recommendations, None
+    
+    # Compute reliability scores
+    scorer = ReliabilityScorer()
+    critique_engine = SelfCritique()
+    
+    if strategy is None:
+        strategy = BalancedStrategy()
+    
+    max_possible_score = strategy.max_possible_score()
+    
+    recommendations_with_reliability = []
+    base_recommendations_tuples = []
+    
+    for song, score, explanation in base_recommendations:
+        # Parse reasons from explanation
+        reasons = explanation.split(" + ") if explanation else []
+        
+        # Compute reliability score
+        reliability, reliability_reasons = scorer.score_reliability(
+            song=song,
+            user_prefs=user_prefs,
+            base_score=score,
+            reasons=reasons,
+            max_possible_score=max_possible_score
+        )
+        
+        # Get confidence label
+        confidence_label = scorer.get_confidence_label(reliability)
+        
+        # Create Recommendation object
+        rec = Recommendation(
+            song=song,
+            score=score,
+            explanation=explanation,
+            reliability=reliability,
+            reliability_reasons=reliability_reasons,
+            critique_flags=[],
+            confidence_label=confidence_label
+        )
+        
+        recommendations_with_reliability.append(rec)
+        base_recommendations_tuples.append((song, score, explanation, reliability))
+    
+    # Run system-level critique
+    critique = critique_engine.critique_recommendations(
+        base_recommendations_tuples,
+        user_prefs,
+        strategy.get_name()
+    )
+    
+    # Convert critique report to dictionary
+    critique_dict = {
+        'diversity_score': critique.diversity_score,
+        'diversity_warning': critique.diversity_warning,
+        'score_cliff_warning': critique.score_cliff_warning,
+        'reliability_bottleneck_warning': critique.reliability_bottleneck_warning,
+        'strategy_alignment': critique.strategy_alignment_status,
+        'missing_criteria': critique.missing_criteria,
+        'critique_flags': critique.critique_flags,
+        'bias_warnings': critique.bias_warnings,
+        'overall_critique': critique.overall_critique
+    }
+    
+    return recommendations_with_reliability, critique_dict

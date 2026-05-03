@@ -1,0 +1,16 @@
+graph LR
+    A["Reliability Score"] -->|0.80 - 1.00| B["🟢 HIGH CONFIDENCE<br/>95% sure this is<br/>a good recommendation"]
+    A -->|0.60 - 0.80| C["🟡 MODERATE<br/>Criteria well matched<br/>but some concerns"]
+    A -->|0.40 - 0.60| D["🟠 LOW<br/>Weak signal<br/>Check manually<br/>Limited data"]
+    A -->|0.00 - 0.40| E["🔴 VERY LOW<br/>High risk<br/>Poor match or<br/>bias detected<br/>Skip unless exploring"]
+    
+    B --> F["✅ Suggest immediately<br/>Explain why it's great"]
+    C --> G["⚠️ Conditional suggest<br/>Mention caveats"]
+    D --> H["❓ Exploratory only<br/>Flag concerns"]
+    E --> I["❌ Not recommended<br/>Explain what's wrong"]
+    
+    style A fill:#e1f5ff
+    style B fill:#90ee90
+    style C fill:#ffeb99
+    style D fill:#ffcc99
+    style E fill:#ff9999

@@ -1,0 +1,41 @@
+graph TD
+    A["List of K Recommendations<br/>Each with reliability"] -->|Input| B["SelfCritique Engine"]
+    
+    B -->|Check 1| C["Diversity Analysis<br/>Count unique genres<br/>Count unique artists<br/>Count unique moods<br/>diversity_ratio = unique_count / max"]
+    
+    C -->|Result| D["Diversity Score<br/>0.0 - 1.0"]
+    
+    D -->|< 0.4| E["🚨 LOW DIVERSITY<br/>All same genre?<br/>All same artist?<br/>Filter bubble detected"]
+    
+    B -->|Check 2| F["Score Clustering<br/>Score[0] - Score[1] =<br/>gap between #1 and #2<br/>avg_gap = mean of all gaps"]
+    
+    F -->|Result| G["Score Gap Analysis"]
+    
+    G -->|gap > avg * 2| H["⚠️ SCORE CLIFF<br/>#1 is obvious choice<br/>#2-K are weak alternatives"]
+    
+    B -->|Check 3| I["Reliability Bottleneck<br/>Count recs with<br/>reliability < 0.4<br/>Ratio to total"]
+    
+    I -->|Result| J["Confidence Distribution"]
+    
+    J -->|> 50% low| K["⚠️ LOW CONFIDENCE<br/>Most recs unreliable<br/>Insufficient data or<br/>poor matches"]
+    
+    B -->|Check 4| L["Strategy Alignment<br/>Check if user asked for<br/>variety but got genre-first<br/>Check strategy match"]
+    
+    L -->|Result| M["Strategy Mismatch"]
+    
+    M -->|Mismatch detected| N["⚠️ STRATEGY ISSUE<br/>Expectations vs delivery"]
+    
+    E --> O["Critique Report"]
+    H --> O
+    K --> O
+    N --> O
+    
+    O -->|Output| P["critique_flags[]<br/>bias_warnings[]<br/>diversity_score<br/>overall_critique"]
+    
+    style B fill:#90ee90
+    style O fill:#ffb6c6
+    style P fill:#ffb6c6
+    style D fill:#fffacd
+    style G fill:#fffacd
+    style J fill:#fffacd
+    style M fill:#fffacd
